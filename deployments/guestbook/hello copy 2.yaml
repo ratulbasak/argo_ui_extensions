@@ -1,0 +1,34 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hello-world-deployment1
+spec:
+  selector:
+    matchLabels:
+      app: hello-world
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: hello-world
+    spec:
+      containers:
+        - name: hello-world
+          image: training/webapp:latest
+          ports:
+            - containerPort: 5000
+---
+# website::tag::3:: Expose the Python webapp on port 5000 via a Kubernetes LoadBalancer.
+kind: Service
+apiVersion: v1
+metadata:
+  name: hello-world-service1
+spec:
+  selector:
+    app: hello-world
+  ports:
+    - protocol: TCP
+      targetPort: 5000
+      port: 5000
+  type: LoadBalancer

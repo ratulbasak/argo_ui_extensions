@@ -1,0 +1,29 @@
+.metrics-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around; /* Distributes space evenly */
+    padding: 10px; /* Adds some padding around the container */
+}
+
+.metric-item {
+    width: 60px; /* Fixed width for each metric item */
+    flex-grow: 1; /* Allows items to grow equally */
+    color: #495763; /* Text color */
+    text-align: center; /* Center-aligns text */
+    margin: 5px; /* Adds some margin between items */
+    padding: 10px; /* Adds padding inside each item */
+    border: 1px solid #ccc; /* Optional: adds a border */
+    border-radius: 5px; /* Optional: rounds the corners */
+    background-color: #f9f9f9; /* Optional: adds a background color */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Optional: adds a subtle shadow */
+}
+
+.metric-title {
+    display: block; /* Makes title a block element */
+    font-weight: bold; /* Makes the title bold */
+}
+
+.metric-value {
+    display: block; /* Makes value a block element */
+    font-size: 1.2em; /* Increases the font size for the value */
+}
