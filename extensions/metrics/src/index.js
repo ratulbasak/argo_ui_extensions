@@ -1,3 +1,4 @@
+// File: src/extensions/image-tag-editor/index.tsx
 import React, { useState, useEffect } from "react";
 import { Button, Table, Select, Input, Modal, notification } from "antd";
 import { ExclamationCircleOutlined } from "@ant-design/icons";
@@ -44,12 +45,12 @@ const ArgoCDImageUpdater = (props) => {
                         if (existing) {
                             const existingImg = existing.images.find(img => img.imageUrl === imageUrl);
                             if (!existingImg) {
-                                existing.images.push({ imageUrl, imageTag, containerName: container.name, history: [] });
+                                existing.images.push({ imageUrl, imageTag, containerName: container.name, history: [imageTag] });
                             }
                         } else {
                             images.push({
                                 resource: `${manifest.kind}/${manifest.metadata.name}`,
-                                images: [{ imageUrl, imageTag, containerName: container.name, history: [] }],
+                                images: [{ imageUrl, imageTag, containerName: container.name, history: [imageTag] }],
                                 selectedImage: imageUrl,
                                 newTag: imageTag,
                                 metadata: manifest.metadata,
@@ -107,7 +108,8 @@ const ArgoCDImageUpdater = (props) => {
                                 ...item,
                                 images: item.images.map(img => img.imageUrl === record.selectedImage ? {
                                     ...img,
-                                    history: Array.from(new Set([record.newTag, ...img.history])).slice(0, 5)
+                                    history: Array.from(new Set([record.newTag, ...img.history, img.imageTag])).slice(0, 5),
+                                    imageTag: record.newTag
                                 } : img),
                                 newTag: record.newTag
                             };
@@ -153,7 +155,7 @@ const ArgoCDImageUpdater = (props) => {
             key: "newTag",
             render: (value, record) => {
                 const selectedImg = record.images.find(img => img.imageUrl === record.selectedImage);
-                const tagOptions = Array.from(new Set([record.newTag, ...(selectedImg?.history || [])]));
+                const tagOptions = Array.from(new Set([value, ...(selectedImg?.history || [])]));
 
                 return (
                     <div>
@@ -161,7 +163,7 @@ const ArgoCDImageUpdater = (props) => {
                             value={value}
                             onChange={(e) => setData((prev) => prev.map((item) => item.resource === record.resource ? { ...item, newTag: e.target.value } : item))}
                         />
-                        <Select style={{ width: '100%', marginTop: 4 }} value={record.newTag} onChange={(val) => {
+                        <Select style={{ width: '100%', marginTop: 4 }} value={value} onChange={(val) => {
                             setData(prev => prev.map(item => item.resource === record.resource ? { ...item, newTag: val } : item));
                         }}>
                             {tagOptions.map((tag, index) => (
