@@ -2,7 +2,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: hello-world-deployment1
+  name: hello-world-deployment
 spec:
   selector:
     matchLabels:
@@ -23,7 +23,7 @@ spec:
 kind: Service
 apiVersion: v1
 metadata:
-  name: hello-world-service1
+  name: hello-world-service
 spec:
   selector:
     app: hello-world
