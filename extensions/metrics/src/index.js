@@ -42,7 +42,10 @@ const ArgoCDImageUpdater = (props) => {
                         const [imageUrl, imageTag] = container.image.split(":");
                         const existing = images.find((img) => img.resource === `${manifest.kind}/${manifest.metadata.name}`);
                         if (existing) {
-                            existing.images.push({ imageUrl, imageTag, containerName: container.name, history: [] });
+                            const existingImg = existing.images.find(img => img.imageUrl === imageUrl);
+                            if (!existingImg) {
+                                existing.images.push({ imageUrl, imageTag, containerName: container.name, history: [] });
+                            }
                         } else {
                             images.push({
                                 resource: `${manifest.kind}/${manifest.metadata.name}`,
@@ -104,8 +107,9 @@ const ArgoCDImageUpdater = (props) => {
                                 ...item,
                                 images: item.images.map(img => img.imageUrl === record.selectedImage ? {
                                     ...img,
-                                    history: [record.newTag, ...img.history].slice(0, 5)
-                                } : img)
+                                    history: Array.from(new Set([record.newTag, ...img.history])).slice(0, 5)
+                                } : img),
+                                newTag: record.newTag
                             };
                         }
                         return item;
@@ -130,14 +134,15 @@ const ArgoCDImageUpdater = (props) => {
             key: "selectedImage",
             render: (value, record) => (
                 <Select value={value} onChange={(val) => {
+                    const selectedImg = record.images.find(img => img.imageUrl === val);
                     setData(prev => prev.map(item => item.resource === record.resource ? {
                         ...item,
                         selectedImage: val,
-                        newTag: item.images.find(img => img.imageUrl === val)?.imageTag || ""
+                        newTag: selectedImg?.imageTag || "",
                     } : item));
                 }}>
-                    {record.images.map(img => (
-                        <Option key={img.imageUrl} value={img.imageUrl}>{img.imageUrl}</Option>
+                    {[...new Set(record.images.map(img => img.imageUrl))].map(imgUrl => (
+                        <Option key={imgUrl} value={imgUrl}>{imgUrl}</Option>
                     ))}
                 </Select>
             ),
@@ -146,21 +151,26 @@ const ArgoCDImageUpdater = (props) => {
             title: "Image Tag",
             dataIndex: "newTag",
             key: "newTag",
-            render: (value, record) => (
-                <div>
-                    <Input
-                        value={value}
-                        onChange={(e) => setData((prev) => prev.map((item) => item.resource === record.resource ? { ...item, newTag: e.target.value } : item))}
-                    />
-                    <Select style={{ width: '100%', marginTop: 4 }} value={record.newTag} onChange={(val) => {
-                        setData(prev => prev.map(item => item.resource === record.resource ? { ...item, newTag: val } : item));
-                    }}>
-                        {record.images.find(img => img.imageUrl === record.selectedImage)?.history.map((tag, index) => (
-                            <Option key={index} value={tag}>{tag}</Option>
-                        ))}
-                    </Select>
-                </div>
-            ),
+            render: (value, record) => {
+                const selectedImg = record.images.find(img => img.imageUrl === record.selectedImage);
+                const tagOptions = Array.from(new Set([record.newTag, ...(selectedImg?.history || [])]));
+
+                return (
+                    <div>
+                        <Input
+                            value={value}
+                            onChange={(e) => setData((prev) => prev.map((item) => item.resource === record.resource ? { ...item, newTag: e.target.value } : item))}
+                        />
+                        <Select style={{ width: '100%', marginTop: 4 }} value={record.newTag} onChange={(val) => {
+                            setData(prev => prev.map(item => item.resource === record.resource ? { ...item, newTag: val } : item));
+                        }}>
+                            {tagOptions.map((tag, index) => (
+                                <Option key={index} value={tag}>{tag}</Option>
+                            ))}
+                        </Select>
+                    </div>
+                );
+            },
         },
         {
             title: "Actions",
