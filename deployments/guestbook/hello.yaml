@@ -2,7 +2,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: hello-world-deployment2
+  name: hello-world-deployment1
 spec:
   selector:
     matchLabels:
@@ -19,11 +19,11 @@ spec:
           ports:
             - containerPort: 80
 ---
-# website::tag::3:: Expose the Python webapp on port 80 via a Kubernetes LoadBalancer.
+# website::tag::3:: Expose the Python webapp on port 5000 via a Kubernetes LoadBalancer.
 kind: Service
 apiVersion: v1
 metadata:
-  name: hello-world-service2
+  name: hello-world-service1
 spec:
   selector:
     app: hello-world

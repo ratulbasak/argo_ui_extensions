@@ -31,12 +31,12 @@ const ArgoCDImageUpdater = (props) => {
                 const group = "apps";
                 const version = resource.version;
                 const url = `/api/v1/applications/${appName}/resource?name=${name}&appNamespace=argocd&namespace=${namespace}&resourceName=${name}&version=${version}&kind=${kind}&group=${group}`;
-                
+
                 const response = await fetch(url);
                 const result = await response.json();
                 const manifest = JSON.parse(result.manifest);
                 const containers = manifest.spec.template.spec.containers;
-                
+
                 if (containers) {
                     containers.forEach(container => {
                         const [imageUrl, imageTag] = container.image.split(":");
@@ -82,9 +82,9 @@ const ArgoCDImageUpdater = (props) => {
                         }
                         return container;
                     });
-                    
+
                     const payload = JSON.stringify({ spec: { template: { spec: updatedSpec }} });
-                    
+
                     const response = await fetch(url, {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
@@ -97,7 +97,7 @@ const ArgoCDImageUpdater = (props) => {
                     }
 
                     notification.success({ message: "Image tag updated successfully" });
-                    
+
                     setData((prev) => prev.map(item => {
                         if (item.resource === record.resource) {
                             return {
@@ -181,12 +181,10 @@ const ArgoCDImageUpdater = (props) => {
             />
             <Table columns={columns} dataSource={filteredData} loading={loading} rowKey="resource" pagination={{showSizeChanger: true,}} />
         </div>
-    )
-    ;
+    );
 };
 
 export const component = ArgoCDImageUpdater;
-
 
 ((window) => {
     window.extensionsAPI.registerResourceExtension(

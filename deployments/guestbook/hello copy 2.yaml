@@ -15,11 +15,11 @@ spec:
     spec:
       containers:
         - name: hello-world
-          image: training/webapp:latest
+          image: docker.io/nginx:stable-alpine
           ports:
-            - containerPort: 5000
+            - containerPort: 80
 ---
-# website::tag::3:: Expose the Python webapp on port 5000 via a Kubernetes LoadBalancer.
+# website::tag::3:: Expose the Python webapp on port 80 via a Kubernetes LoadBalancer.
 kind: Service
 apiVersion: v1
 metadata:
@@ -29,6 +29,6 @@ spec:
     app: hello-world
   ports:
     - protocol: TCP
-      targetPort: 5000
+      targetPort: 80
       port: 5000
   type: LoadBalancer

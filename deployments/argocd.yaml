@@ -25382,7 +25382,7 @@ spec:
         env:
         - name: EXTENSION_URL
           # value: https://github.com/ratulbasak/argocd-example-apps/raw/refs/heads/master/extensions/hallo/extension.tar
-          value: https://github.com/ratulbasak/argo_ui_extensions/raw/refs/heads/master/extensions/metrics/output/extension.tar
+          value: https://github.com/ratulbasak/argo_ui_extensions/raw/refs/heads/master/extensions/moreinfo/output/extension.tar
         volumeMounts:
           - name: extensions
             mountPath: /tmp/extensions/
