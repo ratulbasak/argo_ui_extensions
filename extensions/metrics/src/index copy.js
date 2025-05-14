@@ -1,3 +1,4 @@
+// File: src/extensions/image-tag-editor/index.tsx
 import React, { useState, useEffect } from "react";
 import { Button, Table, Select, Input, Modal, notification } from "antd";
 import { ExclamationCircleOutlined } from "@ant-design/icons";
@@ -21,27 +22,6 @@ const ArgoCDImageUpdater = (props) => {
     const fetchImageData = async () => {
         setLoading(true);
         try {
-            const historyTags = {};
-            const syncResult = application.status.operationState?.syncResult;
-            if (syncResult?.resources) {
-                syncResult.resources.forEach(res => {
-                    if (["Deployment", "StatefulSet"].includes(res.kind) && res.liveState) {
-                        try {
-                            const live = JSON.parse(res.liveState);
-                            live?.spec?.template?.spec?.containers?.forEach(c => {
-                                const [imageUrl, imageTag] = c.image.split(":");
-                                const key = `${res.kind}/${res.name}`;
-                                if (!historyTags[key]) historyTags[key] = {};
-                                if (!historyTags[key][imageUrl]) historyTags[key][imageUrl] = new Set();
-                                historyTags[key][imageUrl].add(imageTag);
-                            });
-                        } catch (e) {
-                            console.warn("Failed to parse liveState:", e);
-                        }
-                    }
-                });
-            }
-
             const resources = application.status.resources.filter(r => r.kind === "Deployment" || r.kind === "StatefulSet");
             const images = [];
 
@@ -61,20 +41,16 @@ const ArgoCDImageUpdater = (props) => {
                 if (containers) {
                     containers.forEach(container => {
                         const [imageUrl, imageTag] = container.image.split(":");
-                        const key = `${manifest.kind}/${manifest.metadata.name}`;
-                        const tagHistory = historyTags[key]?.[imageUrl] || new Set();
-                        tagHistory.add(imageTag);
-
-                        const existing = images.find((img) => img.resource === key);
+                        const existing = images.find((img) => img.resource === `${manifest.kind}/${manifest.metadata.name}`);
                         if (existing) {
                             const existingImg = existing.images.find(img => img.imageUrl === imageUrl);
                             if (!existingImg) {
-                                existing.images.push({ imageUrl, imageTag, containerName: container.name, history: Array.from(tagHistory) });
+                                existing.images.push({ imageUrl, imageTag, containerName: container.name, history: [imageTag] });
                             }
                         } else {
                             images.push({
-                                resource: key,
-                                images: [{ imageUrl, imageTag, containerName: container.name, history: Array.from(tagHistory) }],
+                                resource: `${manifest.kind}/${manifest.metadata.name}`,
+                                images: [{ imageUrl, imageTag, containerName: container.name, history: [imageTag] }],
                                 selectedImage: imageUrl,
                                 newTag: imageTag,
                                 metadata: manifest.metadata,
