@@ -1,0 +1,40 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  labels:
+    id: 111-1
+  name: guestbook-dev
+  namespace: argocd
+spec:
+  destination:
+    namespace: dev
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    path: deployments/guestbook
+    repoURL: https://github.com/ratulbasak/argo_ui_extensions.git
+    targetRevision: test
+  syncPolicy:
+    syncOptions:
+    - ApplyOutOfSyncOnly=true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  labels:
+    id: 111-1
+  name: guestbook-prod
+  namespace: argocd
+spec:
+  destination:
+    namespace: guestbook
+    server: https://kubernetes.default.svc
+  project: prod
+  source:
+    path: deployments/guestbook
+    repoURL: https://github.com/ratulbasak/argo_ui_extensions.git
+    targetRevision: master
+  syncPolicy:
+    syncOptions:
+    - ApplyOutOfSyncOnly=true
